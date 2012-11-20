@@ -12,7 +12,7 @@ module MKV
     def initialize(data)
       (@number, @mkv_info_id) = data.match(/track number:\s(\d+)\s\(track ID for mkvmerge & mkvextract: (\d+)\)/i)[1..2] 
       @uid = data.match(/track uid: (\d+)/i)[1]
-      @lacing = data.match(/lacing flag: (\d+)/i)[1] != '0'
+      @lacing = (data.match(/lacing flag: (\d+)/i) || [0, 0])[1] != '0'
       @type = data.match(/track type: (\w+)/i)[1]
       @codec_id = data.match(/codec id: (.*)/i)[1]
 
@@ -28,9 +28,9 @@ module MKV
 
       if @type == 'audio' || @type == 'subtitles'
         @language = data.match(/language: (\w+)/i)[1]
-        @enabled = data.match(/enabled: (\d+)/i)[1] != '0'
-        @default = data.match(/default flag: (\d+)/i)[1] != '0'
-        @forced = data.match(/forced flag: (\d+)/i)[1] != '0'
+        @enabled = (data.match(/enabled: (\d+)/i) || [0, 1])[1] != '0'
+        @default = (data.match(/default flag: (\d+)/i) || [0, 0])[1] != '0'
+        @forced = (data.match(/forced flag: (\d+)/i) || [0, 0])[1] != '0'
       end
     end
 
