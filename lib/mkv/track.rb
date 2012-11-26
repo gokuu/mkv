@@ -10,7 +10,7 @@ module MKV
     attr_reader :language, :enabled, :default, :forced
 
     def initialize(data)
-      (@number, @mkv_info_id) = data.match(/track number:\s(\d+)\s\(track ID for mkvmerge & mkvextract: (\d+)\)/i)[1..2] 
+      (@number, @mkv_info_id) = data.match(/track number:\s(\d+)\s\(track ID for mkvmerge & mkvextract: (\d+)\)/i)[1..2]
       @uid = data.match(/track uid: (\d+)/i)[1]
       @lacing = (data.match(/lacing flag: (\d+)/i) || [0, 0])[1] != '0'
       @type = data.match(/track type: (\w+)/i)[1]
@@ -27,7 +27,7 @@ module MKV
       end
 
       if @type == 'audio' || @type == 'subtitles'
-        @language = data.match(/language: (\w+)/i)[1]
+        @language = (data.match(/language: (\w+)/i) || ['eng'])[1]
         @enabled = (data.match(/enabled: (\d+)/i) || [0, 1])[1] != '0'
         @default = (data.match(/default flag: (\d+)/i) || [0, 0])[1] != '0'
         @forced = (data.match(/forced flag: (\d+)/i) || [0, 0])[1] != '0'
