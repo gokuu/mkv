@@ -26,7 +26,7 @@ module MKV
         MKV::Track.new track_data
       end
       
-      @invalid = true if @tracks.any?
+      @invalid = true unless @tracks.any?
       @invalid = true if output.include?("is not supported")
       @invalid = true if output.include?("could not find codec parameters")
     end
@@ -39,10 +39,25 @@ module MKV
     def has_video? ; tracks.select { |t| t.type == 'video' }.any? ; end
     def has_audio? ; tracks.select { |t| t.type == 'audio' }.any? ; end
 
-    def extract_subtitles(destination_dir)
-      tracks.select { |t| t.type == 'subtitles' }.each do |track|
-        destination_filename = File.basename(@path).gsub(/\.mkv$/i, %Q[.#{track.language}.srt])
+    def has_subtitles?(language)
+      tracks.any? { |t| t.type == 'subtitles' && t.language == language}
+    end
+
+    def extract_subtitles(options={})
+      # Compatibility with legacy method accepting a String for destination_dir (deprecated)
+      if options.class == String
+        options = {destination_dir: options}
+      end
+
+      track_filter = lambda { |t| t.type == 'subtitles' && (t.language == options[:language] || options[:language].nil?) }
+
+      tracks.select(&track_filter).each do |track|
+        destination_fileextension = (options[:language] ? "" : ".#{track.language}") + ".srt"
+        destination_filename = File.basename(@path).gsub(/\.mkv$/i, destination_fileextension)
+        destination_dir = options[:destination_dir] || File.dirname(@path)
+
         command = %Q[#{MKV.mkvextract_binary} tracks "#{@path}" #{track.mkv_info_id}:"#{File.join(destination_dir, destination_filename)}"]
+        MKV.logger.info(command)
 
         output = ""
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
