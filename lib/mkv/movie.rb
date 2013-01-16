@@ -41,7 +41,7 @@ module MKV
 
     def extract_subtitles(destination_dir)
       tracks.select { |t| t.type == 'subtitles' }.each do |track|
-        destination_filename = File.basename(@path).gsub(/\.mkv$/i, %Q[.#{track.language}.srt])
+        destination_filename = File.basename(@path).gsub(/\.mkv$/i, %Q[.#{track.mkv_info_id}.#{track.language || 'und'}.srt])
         command = %Q[#{MKV.mkvextract_binary} tracks "#{@path}" #{track.mkv_info_id}:"#{File.join(destination_dir, destination_filename)}"]
 
         output = ""
