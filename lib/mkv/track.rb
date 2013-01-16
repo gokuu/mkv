@@ -23,7 +23,7 @@ module MKV
 
       if @type == 'audio'
         @sampling_frequency = data.match(/sampling frequency: (\d+)/i)[1].to_i
-        @channels = data.match(/channels: (\d+)/i)[1].to_i
+        @channels = (data.match(/channels: (\d+)/i) || [nil, '2'])[1].to_i
       end
 
       if @type == 'audio' || @type == 'subtitles'
