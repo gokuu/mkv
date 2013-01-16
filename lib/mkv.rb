@@ -27,9 +27,9 @@ module MKV
   # @return [Logger]
   def self.logger
     return @logger if @logger
-    logger = Logger.new(STDOUT)
-    logger.level = Logger::INFO
-    @logger = logger
+    log = Logger.new(STDOUT)
+    log.level = Logger::INFO
+    @logger = log
   end
 
   # Set the path of the mkvinfo binary.
