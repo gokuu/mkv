@@ -45,15 +45,16 @@ module MKV
         command = %Q[#{MKV.mkvextract_binary} tracks "#{@path}" #{track.mkv_info_id}:"#{File.join(destination_dir, destination_filename)}"]
 
         output = ""
+        start_time = Time.now.to_i
         Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
           begin
-            yield(0.0) if block_given?
+            yield(0.0, 0, destination_filename) if block_given?
             next_line = Proc.new do |line|
               output << line
               if line =~ /(\d+)%/
-                progress = $1.to_i 
+                progress = $1.to_i
 
-                yield(progress) if block_given?
+                yield(progress, Time.now.to_i - start_time, destination_filename) if block_given?
               end
 
               if line =~ /Unsupported codec/
