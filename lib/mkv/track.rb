@@ -34,5 +34,16 @@ module MKV
       end
     end
 
+    def is_video?
+      @type == 'video'
+    end
+
+    def is_audio?
+      @type == 'audio'
+    end
+
+    def is_subtitle?
+      @type =~ /subtitles?/
+    end
   end
 end
