@@ -27,7 +27,7 @@ module MKV
       end
 
       if @type == 'audio' || @type == 'subtitles'
-        @language = (data.match(/language: (\w+)/i) || ['eng'])[1]
+        @language = (data.match(/language: (\w+)/i) || [nil, 'eng'])[1]
         @enabled = (data.match(/enabled: (\d+)/i) || [0, 1])[1] != '0'
         @default = (data.match(/default flag: (\d+)/i) || [0, 0])[1] != '0'
         @forced = (data.match(/forced flag: (\d+)/i) || [0, 0])[1] != '0'
