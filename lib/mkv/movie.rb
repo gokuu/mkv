@@ -9,7 +9,7 @@ module MKV
 
     def initialize(path)
       raise Errno::ENOENT, "the file '#{path}' does not exist" unless File.exists?(path)
-      
+
       @path = path
 
       # mkvinfo will output to stdout
@@ -25,12 +25,12 @@ module MKV
       @tracks = match_tracks.map do |track_data|
         MKV::Track.new track_data
       end
-      
-      @invalid = true if @tracks.any?
+
+      @invalid = true unless @tracks.any?
       @invalid = true if output.include?("is not supported")
       @invalid = true if output.include?("could not find codec parameters")
     end
-    
+
     def valid?
       not @invalid
     end
@@ -39,10 +39,28 @@ module MKV
     def has_video? ; tracks.select { |t| t.type == 'video' }.any? ; end
     def has_audio? ; tracks.select { |t| t.type == 'audio' }.any? ; end
 
-    def extract_subtitles(destination_dir)
-      tracks.select { |t| t.type == 'subtitles' }.each do |track|
-        destination_filename = File.basename(@path).gsub(/\.mkv$/i, %Q[.#{track.mkv_info_id}.#{track.language || 'und'}.srt])
+    def has_subtitles?(language)
+      tracks.any? { |t| t.type == 'subtitles' && t.language == language}
+    end
+
+    def extract_subtitles(options={})
+      # Compatibility with legacy method accepting a String for destination_dir (deprecated)
+      if options.class == String
+        options = { :destination_dir => options }
+      end
+
+      options[:language] ||= []
+      options[:language] = [options[:language]].flatten.map(&:to_sym) if options[:language]
+
+      track_filter = lambda { |t| t.type == 'subtitles' && (options[:language].include?(t.language.to_sym) || options[:language].empty?) }
+
+      tracks.select(&track_filter).each do |track|
+        destination_fileextension = (options[:language].count == 1 ? "" : ".#{track.mkv_info_id}.#{track.language}") + ".srt"
+        destination_filename = File.basename(@path).gsub(/\.mkv$/i, destination_fileextension)
+        destination_dir = options[:destination_dir] || File.dirname(@path)
+
         command = %Q[#{MKV.mkvextract_binary} tracks "#{@path}" #{track.mkv_info_id}:"#{File.join(destination_dir, destination_filename)}"]
+        MKV.logger.info(command)
 
         output = ""
         start_time = Time.now.to_i
@@ -62,13 +80,13 @@ module MKV
                 raise "Failed encoding: #{line}"
               end
             end
-            
+
             if @@timeout
               stdout.each_with_timeout(wait_thr.pid, @@timeout, "r", &next_line)
             else
               stdout.each("r", &next_line)
             end
-              
+
           rescue Timeout::Error => e
             MKV.logger.error "Process hung...\nCommand\n#{command}\nOutput\n#{output}\n"
             raise MKV::Error, "Process hung. Full output: #{output}"
