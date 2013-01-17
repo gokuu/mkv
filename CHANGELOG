@@ -1,3 +1,9 @@
+v0.0.3
+------
+* Added subtitle extraction options to filter by language (by alxbrun)
+* Some fixes (by alxbrun)
+* More information provided by the extract method
+
 v0.0.2
 ------
 * Added default value for some of track's properties
