@@ -51,6 +51,7 @@ module MKV
 
       options[:language] ||= []
       options[:language] = [options[:language]].flatten.map(&:to_sym) if options[:language]
+      options[:language] << :und if options[:language].any?
 
       track_filter = lambda { |t| t.type == 'subtitles' && (options[:language].include?(t.language.to_sym) || options[:language].empty?) }
 
