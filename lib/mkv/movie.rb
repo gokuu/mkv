@@ -39,7 +39,8 @@ module MKV
     def has_audio? ; tracks.select { |t| t.type == 'audio' }.any? ; end
 
     def has_subtitles?(language = nil)
-      tracks.any? { |t| t.type == 'subtitles' && (language.nil? || t.language == language) }
+      language = [language].flatten if language
+      tracks.any? { |t| t.type == 'subtitles' && (language.nil? || language.empty? || language.include?(t.language)) }
     end
 
     def extract_subtitles(options={})
