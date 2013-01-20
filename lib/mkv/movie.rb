@@ -35,12 +35,11 @@ module MKV
       not @invalid
     end
 
-    def has_subtitles? ; tracks.select { |t| t.type == 'subtitles' }.any? ; end
     def has_video? ; tracks.select { |t| t.type == 'video' }.any? ; end
     def has_audio? ; tracks.select { |t| t.type == 'audio' }.any? ; end
 
-    def has_subtitles?(language)
-      tracks.any? { |t| t.type == 'subtitles' && t.language == language}
+    def has_subtitles?(language = nil)
+      tracks.any? { |t| t.type == 'subtitles' && (language.nil? || t.language == language) }
     end
 
     def extract_subtitles(options={})
