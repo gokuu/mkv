@@ -43,7 +43,7 @@ module MKV
     end
 
     def is_subtitle?
-      @type =~ /subtitles?/
+      !(@type =~ /subtitles?/).nil?
     end
   end
 end
