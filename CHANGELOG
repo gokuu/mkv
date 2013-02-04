@@ -1,3 +1,9 @@
+v0.0.4
+------
+* Support checking for subtitle in several languages in the same call
+* Always extract 'Undetermined' language subtitles
+* Some fixes
+
 v0.0.3
 ------
 * Added subtitle extraction options to filter by language (by alxbrun)
